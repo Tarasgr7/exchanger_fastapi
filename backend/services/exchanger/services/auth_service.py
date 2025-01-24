@@ -1,3 +1,5 @@
+import random
+import string
 import os
 from datetime import datetime,timedelta
 from typing import Annotated
@@ -19,6 +21,28 @@ oauth2_bearer=OAuth2PasswordBearer(tokenUrl='auth/token')
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
+
+
+def generate_password() -> str:
+    length = 12
+
+    uppercase = random.choice(string.ascii_uppercase)  
+    lowercase = random.choice(string.ascii_lowercase)  
+    digit = random.choice(string.digits)  
+
+    other_characters = string.ascii_letters + string.digits
+    remaining = ''.join(random.choices(other_characters, k=length - 3))
+
+    password = list(uppercase + lowercase + digit + remaining)
+
+    random.shuffle(password)
+
+    return ''.join(password)
+
+# Приклад використання
+
+
+
 
 def authenticate_user(email:str,password:str,db):
    user=db.query(Users).filter(Users.email==email).first()
