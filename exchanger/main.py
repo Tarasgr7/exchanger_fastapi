@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from exchanger.dependencies import Base, engine
+from .dependencies import Base, engine
 from .routers import auth,categories,expenses,analytics,users
 
 

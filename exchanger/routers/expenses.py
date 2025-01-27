@@ -1,25 +1,12 @@
-from fastapi import APIRouter,Depends,HTTPException,Path,status
-from sqlalchemy.orm import Session
-from typing import Annotated
+from fastapi import APIRouter,HTTPException,status
 from ..models.expense_model import Expense
 from ..schemas.expense_schemas import ExpenseCreatedModel
-from ..dependencies import SessionLocal
-from ..services.auth_service import get_current_user
+from ..services.utils import db_dependency,user_dependency 
 
 router = APIRouter(
   prefix="/expenses",
   tags=["expenses"]
 )
-
-def get_db():
-  db = SessionLocal()
-  try:
-    yield db
-  finally:
-    db.close()
-
-db_dependency=Annotated[Session,Depends(get_db)]
-user_dependency=Annotated[dict,Depends(get_current_user)]
 
 
 @router.get('/',status_code=status.HTTP_200_OK)

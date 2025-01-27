@@ -67,24 +67,29 @@ def authenticate_user(email:str,password:str,db):
    return user
 
 def create_access_token(email: str, id: str,role:str,is_active:bool, expires_delta: timedelta):
-    encode={'sub': email,'id': id,'role':role,'status':is_active}
-    expires=datetime.utcnow() + expires_delta
-    encode.update({'exp':expires})
-    return jwt.encode(encode,SECRET_KEY,algorithm=ALGORITHM)
+   encode={
+      'sub': email,
+      'id': id,
+      'role':role,
+      'status':is_active
+      }
+   expires=datetime.utcnow() + expires_delta
+   encode.update({'exp':expires})
+   return jwt.encode(encode,SECRET_KEY,algorithm=ALGORITHM)
 
 
 async def get_current_user(token:Annotated[str,Depends(oauth2_bearer)]):
-    try:
-       payload=jwt.decode(token,SECRET_KEY,algorithms=[ALGORITHM])
-       email=payload.get('sub')
-       id=payload.get('id')
-       role=payload.get('role')
-       is_active=payload.get('status')
-       if email is None or id is None or is_active is False:
-          raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail='Could not validate user')
-       return{'email':email, 'id':id,'user_role':role}
-    except JWTError:
-       raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail='Token expired')
+   try:
+      payload=jwt.decode(token,SECRET_KEY,algorithms=[ALGORITHM])
+      email=payload.get('sub')
+      id=payload.get('id')
+      role=payload.get('role')
+      is_active=payload.get('status')
+      if email is None or id is None or is_active is False:
+         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail='Could not validate user')
+      return{'email':email, 'id':id,'user_role':role}
+   except JWTError:
+      raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail='Token expired')
 
 
 
@@ -96,10 +101,10 @@ def send_verification_email(email: str, token: str):
    msg['Subject'] = "Email Verify"
    msg['From'] = EMAIL_ADDRESS
    msg['To'] = email
-   msg.set_content("This email requires an HTML-compatible email client.")  # Текстовий варіант
+   msg.set_content("This email requires an HTML-compatible email client.") 
    msg.add_alternative(html_content, subtype="html")
 
-                # Send email
+
    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
       smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
       smtp.send_message(msg)

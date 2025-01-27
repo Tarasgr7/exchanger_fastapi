@@ -4,8 +4,7 @@ from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends, HTTPException, Path
 from starlette import status
 from ..models.users_model import Users
-from ..dependencies import SessionLocal
-from ..services.auth_service import get_current_user
+from ..services.utils import db_dependency,user_dependency, bcrypt_context
 from passlib.context import CryptContext
 
 router = APIRouter(
@@ -13,18 +12,6 @@ router = APIRouter(
     tags=['user']
 )
 
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-db_dependency = Annotated[Session, Depends(get_db)]
-user_dependency = Annotated[dict, Depends(get_current_user)]
-bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 class UserVerification(BaseModel):
     password:str

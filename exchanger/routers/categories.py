@@ -1,25 +1,14 @@
-from fastapi import APIRouter,HTTPException,status, Depends, Path
+from fastapi import APIRouter,HTTPException,status, Path
 from ..models.category_model import Category
 from ..schemas.category_schemas import CreateCategory
-from ..services.auth_service import get_current_user
-from ..dependencies import SessionLocal
-from typing import Annotated
-from sqlalchemy.orm import Session
+from ..services.utils import  db_dependency, user_dependency
+
 
 router = APIRouter(
   prefix="/categories",
   tags=["categories"]
 )
 
-def get_db():
-  db = SessionLocal()
-  try:
-    yield db
-  finally:
-    db.close()
-
-db_dependency=Annotated[Session,Depends(get_db)]
-user_dependency=Annotated[dict,Depends(get_current_user)]
 
 @router.get('/',status_code=status.HTTP_200_OK)
 async def read_categories(db: db_dependency):
@@ -31,7 +20,9 @@ async def create_category(category: CreateCategory, db:db_dependency, user:user_
     raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
   if db.query(Category).filter(Category.name==category.name).first():
     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Category already exists")
-  new_category = Category(name=category.name, user_id=user.get('id'))
+  new_category = Category(
+    name=category.name,
+    user_id=user.get('id'))
   db.add(new_category)
   db.commit()
 
