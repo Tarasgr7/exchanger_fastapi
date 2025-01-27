@@ -1,9 +1,6 @@
-from fastapi import APIRouter,Depends,status
-from ..dependencies import SessionLocal
-from..services.auth_service import get_current_user
+from fastapi import APIRouter,status
 from ..schemas.analytics_schemas import *
 from ..services.analytics_service import *
-from typing import Annotated
 from ..services.utils import db_dependency,user_dependency
 
 

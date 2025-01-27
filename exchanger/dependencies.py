@@ -1,20 +1,21 @@
 import os
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker,Session
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from passlib.context import CryptContext
-from fastapi import Depends
-from typing import Annotated
 from dotenv import load_dotenv
-
-
 
 load_dotenv()
 
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
-TOPIC_NOTIFACATION = os.getenv("TOPIC_NOTIFACATION")
+
+EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
+EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
+
+
+
+
 
 SQLALCHEMY_DATABASE_URL = 'sqlite:///exchanger.db'
 

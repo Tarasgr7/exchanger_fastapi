@@ -7,6 +7,8 @@ from typing import Annotated
 
 
 from ..models.users_model import Users
+from ..services.utils import bcrypt_context
+from ..dependencies import SECRET_KEY,ALGORITHM,EMAIL_ADDRESS,EMAIL_PASSWORD
 
 from fastapi import Depends,HTTPException,status
 from fastapi.security import OAuth2PasswordRequestForm,OAuth2PasswordBearer
@@ -19,18 +21,15 @@ from email.message import EmailMessage
 from starlette.templating import Jinja2Templates
 from jinja2 import Environment, FileSystemLoader
 
+
 load_dotenv()
 
 email_templates_env = Environment(loader=FileSystemLoader("exchanger/templates"))
 
 
-bcrypt_context=CryptContext(schemes=['bcrypt'],deprecated='auto')
+
 oauth2_bearer=OAuth2PasswordBearer(tokenUrl='auth/token')
 
-SECRET_KEY = os.getenv("SECRET_KEY")
-ALGORITHM = os.getenv("ALGORITHM")
-EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
-EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 
 
 
@@ -55,7 +54,7 @@ def generate_password() -> str:
 
     return ''.join(password)
 
-# Приклад використання
+
 
 
 

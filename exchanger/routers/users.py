@@ -1,11 +1,8 @@
-from typing import Annotated
-from pydantic import BaseModel, Field
-from sqlalchemy.orm import Session
-from fastapi import APIRouter, Depends, HTTPException, Path
+from pydantic import BaseModel
+from fastapi import APIRouter, HTTPException
 from starlette import status
 from ..models.users_model import Users
 from ..services.utils import db_dependency,user_dependency, bcrypt_context
-from passlib.context import CryptContext
 
 router = APIRouter(
     prefix='/user',
