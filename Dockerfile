@@ -14,3 +14,9 @@ COPY ./exchanger /app/exchanger
 
 # Вказуємо команду запуску
 CMD ["uvicorn", "exchanger.main:app", "--host", "0.0.0.0", "--port", "80"]
+
+
+
+
+
+

@@ -1,5 +1,3 @@
-import random
-import string
 import os
 import smtplib
 from datetime import datetime,timedelta
@@ -7,8 +5,8 @@ from typing import Annotated
 
 
 from ..models.users_model import Users
-from ..services.utils import bcrypt_context
-from ..dependencies import SECRET_KEY,ALGORITHM,EMAIL_ADDRESS,EMAIL_PASSWORD
+
+from ..dependencies import SECRET_KEY,ALGORITHM,EMAIL_PASSWORD,EMAIL_ADDRESS,logger
 
 from fastapi import Depends,HTTPException,status
 from fastapi.security import OAuth2PasswordRequestForm,OAuth2PasswordBearer
@@ -30,31 +28,12 @@ email_templates_env = Environment(loader=FileSystemLoader("exchanger/templates")
 
 oauth2_bearer=OAuth2PasswordBearer(tokenUrl='auth/token')
 
-
+bcrypt_context=CryptContext(schemes=['bcrypt'],deprecated='auto')
 
 
 
 def encode_password(password: str) -> str:
     return bcrypt_context.hash(password)
-
-
-def generate_password() -> str:
-    length = 12
-
-    uppercase = random.choice(string.ascii_uppercase)  
-    lowercase = random.choice(string.ascii_lowercase)  
-    digit = random.choice(string.digits)  
-
-    other_characters = string.ascii_letters + string.digits
-    remaining = ''.join(random.choices(other_characters, k=length - 3))
-
-    password = list(uppercase + lowercase + digit + remaining)
-
-    random.shuffle(password)
-
-    return ''.join(password)
-
-
 
 
 
@@ -94,7 +73,7 @@ async def get_current_user(token:Annotated[str,Depends(oauth2_bearer)]):
 
 def send_verification_email(email: str, token: str):
    template = email_templates_env.get_template("email_verify.html")
-   verification_link = f"http://0.0.0.0:8000/auth/verify/{token}"
+   verification_link = f"http://0.0.0.0:80/auth/verify/{token}"
    html_content = template.render(verification_link=verification_link)
    msg = EmailMessage()
    msg['Subject'] = "Email Verify"
@@ -107,6 +86,7 @@ def send_verification_email(email: str, token: str):
    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
       smtp.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
       smtp.send_message(msg)
+
 
 
 
