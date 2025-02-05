@@ -44,4 +44,20 @@ services:
     depends_on:
       - loki
       - promtail
+      - redis
     restart: always
+  
+  redis:
+    image: redis:latest
+    container_name: my_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+
+volumes:
+  redis_data:
+    driver: local
+

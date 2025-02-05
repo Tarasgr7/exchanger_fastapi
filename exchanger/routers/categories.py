@@ -1,12 +1,16 @@
 import os
 import smtplib
+import redis
+import json
 import logging
 from datetime import datetime, timedelta
+from time import time
 from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, status, Path
+from fastapi import APIRouter, HTTPException, status, Path,Depends
 from ..models.category_model import Category
 from ..schemas.category_schemas import CreateCategory
+from ..services.redis_client import get_redis
 from ..services.utils import db_dependency, user_dependency
 from ..dependencies import logger
 # Налаштування логування
@@ -18,10 +22,27 @@ router = APIRouter(
 )
 
 @router.get('/', status_code=status.HTTP_200_OK)
-async def read_categories(db: db_dependency):
-    logger.info("Отримання списку категорій")
-    categories = db.query(Category).all()
-    logger.info(f"Знайдено {len(categories)} категорій")
+async def read_categories(db: db_dependency, redis_client: redis.Redis = Depends(get_redis)):
+    start_time = time()  # Початок вимірювання часу
+    cache_key = "categories_list"
+
+    # Перевіряємо кеш у Redis
+    cached_data = await redis_client.get(cache_key)
+    if cached_data:
+        logger.info("✅ Дані взяті з кешу Redis")
+        categories = json.loads(cached_data)
+    else:
+        logger.info("⏳ Даних у кеші немає, виконуємо запит до БД")
+        categories = db.query(Category).all()
+        categories_data = [{"id": c.id, "name": c.name} for c in categories]
+
+        # Зберігаємо у Redis на 60 секунд
+        await redis_client.set(cache_key, json.dumps(categories_data), ex=60)
+        logger.info(f"✅ Додано в кеш Redis на 60 секунд: {len(categories)} категорій")
+
+    execution_time = time() - start_time  # Кінець вимірювання часу
+    logger.info(f"⏳ Час виконання запиту: {execution_time:.4f} секунд")
+
     return categories
 
 @router.post("/new", status_code=status.HTTP_201_CREATED)

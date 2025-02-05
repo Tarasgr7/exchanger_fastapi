@@ -6,8 +6,9 @@ WORKDIR /app
 # Копіюємо файл залежностей
 COPY ./requirements.txt /app/requirements.txt
 
-# Встановлюємо залежності
-RUN pip install --no-cache-dir --upgrade -r requirements.txt
+RUN python -m pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
 
 # Копіюємо весь код додатку
 COPY ./exchanger /app/exchanger
